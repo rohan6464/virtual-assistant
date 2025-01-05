@@ -223,6 +223,8 @@ const VirtualAssistant: React.FC = () => {
                   style={{
                     borderTopLeftRadius: "10px",
                     borderTopRightRadius: "10px",
+                    maxHeight: "400px", // Set a max height to avoid the webcam being too tall on mobile
+                    objectFit: "cover", // Ensure the webcam covers the container properly without stretching
                   }}
                 />
 
