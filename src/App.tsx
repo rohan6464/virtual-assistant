@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import VirtualAssistant from "./components/VirtualAssistant";
+import VisualAssistant from "./components/VisualAssistant";
 import "./App.css";
 import PageNotFound from "./components/PageNotFound";
 
@@ -9,7 +9,7 @@ function App() {
     <Router>
       <Routes>
         {/* Define routes here */}
-        <Route path="/" element={<VirtualAssistant />} />
+        <Route path="/" element={<VisualAssistant />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </Router>

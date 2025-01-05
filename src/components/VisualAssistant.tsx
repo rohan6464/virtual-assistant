@@ -21,7 +21,7 @@ import Lottie from "lottie-react";
 import animationData from "../assests/assistant.json";
 import { motion } from "framer-motion";
 import InfoIcon from "@mui/icons-material/Info";
-const VirtualAssistant: React.FC = () => {
+const VisualAssistant: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [solution, setSolution] = useState<string>("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -170,7 +170,7 @@ const VirtualAssistant: React.FC = () => {
         className="h-full w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
       >
         <Box className="h-[10vh] bg-metallicBlue flex items-center justify-center text-white relative">
-          <Typography>Virtual Teacher Assistant</Typography>
+          <Typography>Visual Learning Assistant</Typography>
           <IconButton color="inherit" onClick={handleClickOpen}>
             <InfoIcon />
           </IconButton>
@@ -375,4 +375,4 @@ const VirtualAssistant: React.FC = () => {
   );
 };
 
-export default VirtualAssistant;
+export default VisualAssistant;
