@@ -195,6 +195,10 @@ const VirtualAssistant: React.FC = () => {
                   borderTopLeftRadius: "10px",
                   borderTopRightRadius: "10px",
                   overflow: "hidden",
+                  height: {
+                    xs: "300px", // Adjust this value as needed for mobile devices
+                    md: "auto", // Default height for larger screens
+                  },
                 }}
               >
                 {!loading && !isWebcamLoaded && (
@@ -218,16 +222,13 @@ const VirtualAssistant: React.FC = () => {
                   videoConstraints={{
                     facingMode: facingMode,
                   }}
-                  className="w-full h-auto border-none"
+                  className="w-full border-none"
                   onUserMedia={() => setIsWebcamLoaded(true)}
                   style={{
                     borderTopLeftRadius: "10px",
                     borderTopRightRadius: "10px",
-                    maxHeight: "400px", // Set a max height to avoid the webcam being too tall on mobile
-                    objectFit: "cover", // Ensure the webcam covers the container properly without stretching
                   }}
                 />
-
                 {isWebcamLoaded && (
                   <Box
                     sx={{
@@ -239,6 +240,11 @@ const VirtualAssistant: React.FC = () => {
                       padding: "0px 10px",
                       borderBottomLeftRadius: "10px",
                       borderBottomRightRadius: "10px",
+                      position: {
+                        xs: "absolute",
+                        bottom: 0,
+                        width: "100%",
+                      },
                     }}
                   >
                     <Typography variant="body2" sx={{ fontSize: "14px" }}>
