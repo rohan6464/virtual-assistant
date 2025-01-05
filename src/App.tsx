@@ -1,12 +1,18 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import VirtualAssistant from './components/VirtualAssistant';
+import React from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import VirtualAssistant from "./components/VirtualAssistant";
+import "./App.css";
+import PageNotFound from "./components/PageNotFound";
 
-function App() 
-{
+function App() {
   return (
-    <VirtualAssistant/>
+    <Router>
+      <Routes>
+        {/* Define routes here */}
+        <Route path="/" element={<VirtualAssistant />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </Router>
   );
 }
 

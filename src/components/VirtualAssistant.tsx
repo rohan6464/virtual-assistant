@@ -4,10 +4,9 @@ import {
   CircularProgress,
   Typography,
   Button,
-  Alert,
   FormControlLabel,
   Switch,
-  Skeleton,
+  Alert,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import "tailwindcss/tailwind.css";
@@ -37,6 +36,13 @@ const VirtualAssistant: React.FC = () => {
     };
   }, []);
 
+  function decodeHTML(html: any) {
+    const parser = new DOMParser();
+    const decodedString = parser.parseFromString(html, "text/html")
+      .documentElement.textContent;
+    return decodedString;
+  }
+
   const analyzeProblem = async () => {
     setLoading(true);
     const webcam = webcamRef.current;
@@ -55,7 +61,7 @@ const VirtualAssistant: React.FC = () => {
                 {
                   parts: [
                     {
-                      text: "Act as a live virtual teacher assistant. Break down the problem into clear steps, providing brief, detailed explanations for each step. After solving, summarize the solution with a concise conclusion. If the image doesn't match the problem, mention that the image is not relevant. Ensure your explanations are simple and easy to follow, as if teaching a beginner.",
+                      text: "Act as a live virtual teacher assistant. Break down the problem into clear steps, providing brief, detailed explanations for each step. After solving, summarize the solution with a concise conclusion. If the image doesn't match the problem, mention that the image is not relevant. Ensure your explanations are simple and easy to follow, as if teaching a beginner. Provide your response in HTML tags with appropriate tags for each section (e.g., <h3> for headings, <p> for paragraphs, <strong> for bold text, etc.). Do not include the word 'html' or any mention of HTML tags in your response text, as this will be automatically handled by our system. We will render the HTML in our UI using dangerouslySetInnerHTML. Just provide the content with correct logical structure and HTML markup.Here is the format:Each step should be wrapped in appropriate tags like <h3> for titles, and <p> for explanations or descriptions.For listing steps, use <ol> and <li> to ensure a clear and ordered structure.Use <strong> where bold text is needed (for example, important terms like PEMDAS).Wrap the conclusion in <h3> and provide it at the end.",
                     },
                     {
                       inline_data: { mime_type: "image/jpeg", data: imageData },
@@ -67,11 +73,20 @@ const VirtualAssistant: React.FC = () => {
             { headers: { "Content-Type": "application/json" } }
           );
 
-          const solutionText =
-            response.data.candidates[0].content.parts[0].text;
+          let solutionText = response.data.candidates[0].content.parts[0].text;
+          solutionText = solutionText
+            .replace(/```html/g, "")
+            .replace(/```/g, "");
+
           setSolution(solutionText);
+
           if (isSpeechEnabled) {
-            speakSolution(solutionText);
+            const decodedSolution: string | null = decodeHTML(solutionText);
+            if (decodedSolution) {
+              speakSolution(decodedSolution);
+            } else {
+              speakSolution(solutionText);
+            }
           }
         } catch (error) {
           setErrorMessage("Error analyzing the problem. Please try again.");
@@ -133,264 +148,182 @@ const VirtualAssistant: React.FC = () => {
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
   };
   return (
-    <Box sx={{ backgroundColor: "#FAFAFA", height: "100vh" }}>
+    <Box className="w-full h-screen bg-gray-100">
       <Container
-        component={motion.div}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="flex flex-col items-center justify-center min-h-screen px-4"
-        sx={{
-          width: "100%",
-          margin: "0 auto",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
+        maxWidth={false}
+        className="h-full w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
       >
-        <Typography
-          component={motion.h6}
-          initial={{ y: -20 }}
-          animate={{ y: 0 }}
-          transition={{ delay: 0.2 }}
-          variant="h6"
-          className="font-bold text-center mb-6"
-          sx={{
-            width: { xs: "100%", md: "50%" },
-            fontWeight: "600",
-            padding: "8px 16px",
-            backgroundColor: "#1A237E",
-            color: "#FFF",
-            borderRadius: "10px",
-            boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-            display: "inline-block",
-            marginBottom: "20px",
-            marginTop: "20px",
-            textAlign: "center",
-          }}
-        >
-          {" "}
-          Virtual Teacher Assistant {"v1"}
-        </Typography>
+        <Box className="h-[10vh] bg-metallicBlue flex items-center justify-center text-white">
+          <Typography>Virtual Teacher Assistant</Typography>
+        </Box>
 
         {errorMessage && (
-          <Alert severity="error" sx={{ width: "100%", marginBottom: 2 }}>
+          <Alert severity="error" className="my-4">
             {errorMessage}
           </Alert>
         )}
 
-        {!loading && (
-          <>
-            {!imagePreview && (
-              <Box
-                component={motion.div}
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.3 }}
-                className="w-full mb-6"
-                sx={{
-                  position: "relative",
-                  width: { xs: "100%", md: "50%" },
-                  borderTopLeftRadius: "10px",
-                  borderTopRightRadius: "10px",
-                  overflow: "hidden",
-                  height: {
-                    xs: "30%", // Smaller height on mobile devices
-                    md: "auto", // Default height for larger screens
-                  },
-                }}
-              >
-                {!loading && !isWebcamLoaded && (
-                  <Skeleton
-                    variant="rectangular"
-                    animation="wave"
-                    sx={{
-                      position: "absolute",
-                      top: 0,
-                      left: 0,
+
+        <Box className="h-[40vh] bg-gostWhite flex items-center justify-center text-white">
+          <Box className="relative w-full h-full">
+            <Box className="w-full h-[90%]" style={{ position: "relative" }}>
+              {!imagePreview ? (
+                <>
+                  {!isWebcamLoaded && (
+                    <Box
+                      style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        zIndex: 10,
+                      }}
+                    >
+                      <CircularProgress />
+                    </Box>
+                  )}
+                  <Webcam
+                    audio={false}
+                    ref={webcamRef}
+                    screenshotFormat="image/jpeg"
+                    videoConstraints={{
+                      facingMode: facingMode,
+                    }}
+                    onUserMedia={() => setIsWebcamLoaded(true)}
+                    onUserMediaError={() => {
+                      setErrorMessage("Webcam access denied");
+                    }}
+                    style={{
                       width: "100%",
                       height: "100%",
-                      borderRadius: "10px",
+                      borderTopLeftRadius: "10px",
+                      borderTopRightRadius: "10px",
+                      display: isWebcamLoaded ? "block" : "none",
                     }}
                   />
-                )}
-                <Webcam
-                  audio={false}
-                  ref={webcamRef}
-                  screenshotFormat="image/jpeg"
-                  videoConstraints={{
-                    facingMode: facingMode,
-                  }}
-                  className="w-full border-none"
-                  onUserMedia={() => setIsWebcamLoaded(true)}
+                </>
+              ) : (
+                <img
+                  src={imagePreview}
+                  alt="Captured"
                   style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "contain",
                     borderTopLeftRadius: "10px",
                     borderTopRightRadius: "10px",
                   }}
                 />
-                {isWebcamLoaded && (
-                  <Box
-                    sx={{
-                      backgroundColor: "#000",
-                      color: "#FFF",
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      padding: "0px 10px",
-                      borderBottomLeftRadius: "10px",
-                      borderBottomRightRadius: "10px",
-                      position: {
-                        xs: "absolute",
-                        bottom: 0,
-                        width: "100%",
-                      },
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ fontSize: "14px" }}>
-                      Switch Camera
-                    </Typography>
-                    <Switch
-                      color="primary"
-                      checked={facingMode === "user"}
-                      onChange={toggleCamera}
-                    />
-                  </Box>
-                )}
-              </Box>
-            )}
+              )}
+            </Box>
 
-            {imagePreview && (
-              <Box
-                component={motion.div}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                className="w-full mb-6"
+            <Box className="w-full h-[10%] flex items-center justify-between px-4 py-2 bg-metallicBlue ">
+              <Typography variant="body2" className="text-sm">
+                Switch Camera
+              </Typography>
+
+              <Switch
+                color="primary"
+                checked={facingMode === "user"}
+                onChange={toggleCamera}
+              />
+            </Box>
+          </Box>
+        </Box>
+
+        <Box className="h-[10vh] bg-gray-800 text-white flex items-center justify-center p-4">
+          {!imagePreview ? (
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                component={motion.button}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                variant="contained"
+                onClick={analyzeProblem}
+                disabled={isWebcamLoaded ? false : true}
                 sx={{
-                  width: { xs: "100%", md: "50%" },
-                  height: { xs: "20%", md: "auto" }, // Adjust the height on mobile
-                  boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.1)",
-                  borderRadius: "10px",
-                  overflow: "hidden",
-                  border: "2px solid #e5e5e5",
+                  backgroundColor: "#4CAF50",
+                  color: "#FFF",
+                  borderRadius: "30px",
+                  padding: "10px 20px",
+                  fontWeight: "600",
+                  fontSize: { xs: "14px", md: "16px" },
+                  textTransform: "none",
+                  boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
+                  maxWidth: "200px",
+                  "&:hover": {
+                    backgroundColor: "#45a049",
+                  },
                 }}
               >
-                <img
-                  src={imagePreview}
-                  alt="Captured"
-                  className="w-full h-auto"
-                />
-              </Box>
-            )}
+                Solve It! 🚀
+              </Button>
 
-            {isWebcamLoaded && !imagePreview && (
-              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                <Button
-                  component={motion.button}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  variant="contained"
-                  onClick={analyzeProblem}
-                  sx={{
-                    backgroundColor: "#4CAF50",
-                    color: "#FFF",
-                    borderRadius: "30px",
-                    padding: "10px 20px",
-                    fontWeight: "600",
-                    fontSize: { xs: "14px", md: "16px" },
-                    textTransform: "none",
-                    boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.1)",
-                    marginTop: "16px",
-                    marginBottom: "16px",
-                    maxWidth: "200px",
-                    "&:hover": {
-                      backgroundColor: "#45a049",
-                    },
-                  }}
-                >
-                  Solve It! 🚀
-                </Button>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={isSpeechEnabled}
+                    onChange={handleSpeechToggle}
+                    name="speechSwitch"
+                    color="primary"
+                  />
+                }
+                label="Enable Speech"
+                className="text-white"
+              />
+            </div>
+          ) : (
+            <Button
+              component={motion.button}
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              variant="contained"
+              onClick={handleNewProblem}
+              disabled={loading ? true : false}
+              sx={{
+                backgroundColor: "#FF5733",
 
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={isSpeechEnabled}
-                      onChange={handleSpeechToggle}
-                      name="speechSwitch"
-                      color="primary"
-                    />
-                  }
-                  label="Enable Speech"
-                />
-              </Box>
-            )}
-          </>
-        )}
-
-        {loading && (
-          <>
-            <Lottie
-              animationData={animationData}
-              loop
-              style={{ width: "15%", height: "15%" }}
-            />
-            <Typography variant="body2" className="mt-2 text-gray-600">
-              Analyzing the problem, please wait...
-              <CircularProgress size={12} className="mt-4" />
-            </Typography>
-          </>
-        )}
-
-        {!loading && solution && (
-          <Box
-            component={motion.div}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5 }}
-            sx={{
-              width: { xs: "100%", md: "50%" },
-              marginBottom: "15px",
-              padding: "18px",
-              border: "2px solid rgb(132, 130, 130)",
-              borderRadius: "10px",
-              backgroundColor: "#FFF",
-              textAlign: "center",
-            }}
-          >
-            {" "}
-            <Typography
-              variant="body1"
-              sx={{ fontSize: "16px", wordWrap: "break-word" }}
+                color: "#FFF",
+                borderRadius: "30px",
+                padding: "12px 24px",
+                fontWeight: "600",
+                fontSize: "16px",
+                "&:hover": {
+                  backgroundColor: "#FF6F3F",
+                },
+              }}
             >
-              {" "}
-              {solution}{" "}
-            </Typography>{" "}
-          </Box>
-        )}
+              New Challenge🎯
+            </Button>
+          )}
+        </Box>
 
-        {solution && (
-          <Button
-            component={motion.button}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            variant="contained"
-            onClick={handleNewProblem}
-            sx={{
-              backgroundColor: "#FF5733",
-              color: "#FFF",
-              borderRadius: "30px",
-              padding: "12px 24px",
-              fontWeight: "600",
-              fontSize: "16px",
-              "&:hover": {
-                backgroundColor: "#FF6F3F",
-              },
-            }}
-          >
-            New Challenge🎯
-          </Button>
-        )}
+        {loading || solution ? (
+          <Box className="h-[40vh] bg-gostWhite text-black flex flex-col justify-between shadow-lg">
+            {/* Conditionally Render Loading Animation or Content */}
+            {loading ? (
+              <Box className="flex flex-col items-center justify-center h-full">
+                <Lottie
+                  animationData={animationData}
+                  loop
+                  style={{ width: "15%", height: "15%" }}
+                />
+                <Typography variant="body2" className="mt-2 text-gray-600">
+                  Analyzing the problem, please wait...
+                  <CircularProgress size={12} className="mt-4" />
+                </Typography>
+              </Box>
+            ) : (
+              <Box className="overflow-auto p-4 flex-grow">
+                <Typography
+                  variant="body1"
+                  sx={{ fontSize: "16px", wordWrap: "break-word" }}
+                  dangerouslySetInnerHTML={{ __html: solution }}
+                />
+              </Box>
+            )}
+          </Box>
+        ) : null}
       </Container>
     </Box>
   );
