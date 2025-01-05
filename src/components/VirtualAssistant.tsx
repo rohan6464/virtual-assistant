@@ -196,7 +196,7 @@ const VirtualAssistant: React.FC = () => {
                   borderTopRightRadius: "10px",
                   overflow: "hidden",
                   height: {
-                    xs: "20%", // Adjust this value as needed for mobile devices
+                    xs: "30%", // Smaller height on mobile devices
                     md: "auto", // Default height for larger screens
                   },
                 }}
@@ -269,7 +269,7 @@ const VirtualAssistant: React.FC = () => {
                 className="w-full mb-6"
                 sx={{
                   width: { xs: "100%", md: "50%" },
-                  height:{xs:"20%",md:"auto"},
+                  height: { xs: "20%", md: "auto" }, // Adjust the height on mobile
                   boxShadow: "0px 8px 24px rgba(0, 0, 0, 0.1)",
                   borderRadius: "10px",
                   overflow: "hidden",
