@@ -27,6 +27,7 @@ const VirtualAssistant: React.FC = () => {
 
   const webcamRef = useRef<Webcam | null>(null);
   const GOOGLE_API_KEY = process.env.REACT_APP_API_Key;
+  let myTimeout: NodeJS.Timeout;
 
   useEffect(() => {
     return () => {
@@ -88,16 +89,14 @@ const VirtualAssistant: React.FC = () => {
               speakSolution(solutionText);
             }
           }
-        } catch (error) {
-          setErrorMessage("Error analyzing the problem. Please try again.");
+        } catch (error:any) {
+          setErrorMessage(`Error: ${error.message || 'An error occurred. Please try again.'}`);
         } finally {
           setLoading(false);
         }
       }
     }
   };
-
-  let myTimeout: NodeJS.Timeout;
 
   function myTimer() {
     window.speechSynthesis.pause();
@@ -147,6 +146,7 @@ const VirtualAssistant: React.FC = () => {
   const toggleCamera = () => {
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
   };
+
   return (
     <Box className="w-full h-screen bg-gray-100">
       <Container
@@ -162,7 +162,6 @@ const VirtualAssistant: React.FC = () => {
             {errorMessage}
           </Alert>
         )}
-
 
         <Box className="h-[40vh] bg-gostWhite flex items-center justify-center text-white">
           <Box className="relative w-full h-full">
@@ -190,8 +189,14 @@ const VirtualAssistant: React.FC = () => {
                       facingMode: facingMode,
                     }}
                     onUserMedia={() => setIsWebcamLoaded(true)}
-                    onUserMediaError={() => {
-                      setErrorMessage("Webcam access denied");
+                    onUserMediaError={(error:any) => {
+                      if (error.name === "NotAllowedError") {
+                        setErrorMessage("Webcam access denied. Please enable camera permissions.");
+                      } else if (error.name === "NotFoundError") {
+                        setErrorMessage("No camera found. Please connect a camera.");
+                      } else {
+                        setErrorMessage("Unable to access the webcam. Please try again.");
+                      }
                     }}
                     style={{
                       width: "100%",
