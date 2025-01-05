@@ -175,7 +175,6 @@ const VirtualAssistant: React.FC = () => {
             <InfoIcon />
           </IconButton>
 
-          {/* Dialog for instructions */}
           <Dialog open={open} onClose={handleClose}>
             <DialogTitle>Instruction</DialogTitle>
             <DialogContent>
@@ -348,7 +347,6 @@ const VirtualAssistant: React.FC = () => {
 
         {loading || solution ? (
           <Box className="h-[40vh] bg-gostWhite text-black flex flex-col justify-between shadow-lg">
-            {/* Conditionally Render Loading Animation or Content */}
             {loading ? (
               <Box className="flex flex-col items-center justify-center h-full">
                 <Lottie
