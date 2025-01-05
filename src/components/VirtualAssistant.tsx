@@ -7,6 +7,11 @@ import {
   FormControlLabel,
   Switch,
   Alert,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import "tailwindcss/tailwind.css";
@@ -15,7 +20,7 @@ import Webcam from "react-webcam";
 import Lottie from "lottie-react";
 import animationData from "../assests/assistant.json";
 import { motion } from "framer-motion";
-
+import InfoIcon from "@mui/icons-material/Info";
 const VirtualAssistant: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [solution, setSolution] = useState<string>("");
@@ -24,6 +29,7 @@ const VirtualAssistant: React.FC = () => {
   const [isSpeechEnabled, setIsSpeechEnabled] = useState<boolean>(true);
   const [isWebcamLoaded, setIsWebcamLoaded] = useState(false);
   const [facingMode, setFacingMode] = useState("environment");
+  const [open, setOpen] = useState(false);
 
   const webcamRef = useRef<Webcam | null>(null);
   const GOOGLE_API_KEY = process.env.REACT_APP_API_Key;
@@ -89,8 +95,10 @@ const VirtualAssistant: React.FC = () => {
               speakSolution(solutionText);
             }
           }
-        } catch (error:any) {
-          setErrorMessage(`Error: ${error.message || 'An error occurred. Please try again.'}`);
+        } catch (error: any) {
+          setErrorMessage(
+            `Error: ${error.message || "An error occurred. Please try again."}`
+          );
         } finally {
           setLoading(false);
         }
@@ -147,14 +155,41 @@ const VirtualAssistant: React.FC = () => {
     setFacingMode((prev) => (prev === "user" ? "environment" : "user"));
   };
 
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   return (
     <Box className="w-full h-screen bg-gray-100">
       <Container
         maxWidth={false}
         className="h-full w-full sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl"
       >
-        <Box className="h-[10vh] bg-metallicBlue flex items-center justify-center text-white">
+        <Box className="h-[10vh] bg-metallicBlue flex items-center justify-center text-white relative">
           <Typography>Virtual Teacher Assistant</Typography>
+          <IconButton color="inherit" onClick={handleClickOpen}>
+            <InfoIcon />
+          </IconButton>
+
+          {/* Dialog for instructions */}
+          <Dialog open={open} onClose={handleClose}>
+            <DialogTitle>Instruction</DialogTitle>
+            <DialogContent>
+              <Typography>
+                Point the camera to the problem, click on "Solve It", and wait
+                for the magic.
+              </Typography>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose} color="primary">
+                Close
+              </Button>
+            </DialogActions>
+          </Dialog>
         </Box>
 
         {errorMessage && (
@@ -178,7 +213,9 @@ const VirtualAssistant: React.FC = () => {
                         zIndex: 10,
                       }}
                     >
-                      <CircularProgress />
+                      <CircularProgress style={{ color: "#1e5471" }}
+                        
+                      />
                     </Box>
                   )}
                   <Webcam
@@ -189,13 +226,19 @@ const VirtualAssistant: React.FC = () => {
                       facingMode: facingMode,
                     }}
                     onUserMedia={() => setIsWebcamLoaded(true)}
-                    onUserMediaError={(error:any) => {
+                    onUserMediaError={(error: any) => {
                       if (error.name === "NotAllowedError") {
-                        setErrorMessage("Webcam access denied. Please enable camera permissions.");
+                        setErrorMessage(
+                          "Webcam access denied. Please enable camera permissions."
+                        );
                       } else if (error.name === "NotFoundError") {
-                        setErrorMessage("No camera found. Please connect a camera.");
+                        setErrorMessage(
+                          "No camera found. Please connect a camera."
+                        );
                       } else {
-                        setErrorMessage("Unable to access the webcam. Please try again.");
+                        setErrorMessage(
+                          "Unable to access the webcam. Please try again."
+                        );
                       }
                     }}
                     style={{
